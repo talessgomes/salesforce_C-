@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using SalesWebMvc.Media;
 using SalesWebMvc.Data;
 using System;
+using SalesWebMvc.Services;
 
 // Cria o builder
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ builder.Services.AddDbContext<SalesWebMvcContext>(options =>
     ));
 
 builder.Services.AddScoped<SeedingService>(); // Registra o SeedingService
+builder.Services.AddScoped<SellerService>(); // Registra o SellerService
 
 // Adiciona os serviços MVC
 builder.Services.AddControllersWithViews();
