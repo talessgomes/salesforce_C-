@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SalesWebMvc.Media;
 using SalesWebMvc.Data;
 using System;
 
@@ -17,6 +18,8 @@ builder.Services.AddDbContext<SalesWebMvcContext>(options =>
         new MySqlServerVersion(new Version(8, 0, 25)) // Ajuste para sua versão MySQL
     ));
 
+builder.Services.AddScoped<SeedingService>(); // Registra o SeedingService
+
 // Adiciona os serviços MVC
 builder.Services.AddControllersWithViews();
 
@@ -26,11 +29,15 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     try
     {
         var context = services.GetRequiredService<SalesWebMvcContext>();
-        SeedingService.Seed(context); // Substitua pelo seu método de seed
+
+        // Garante que o banco e tabelas estejam atualizados
+        context.Database.Migrate();
+
+        var seedingService = services.GetRequiredService<SeedingService>();
+        seedingService.Seed();
     }
     catch (Exception ex)
     {
@@ -38,6 +45,8 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Erro ao popular o banco de dados.");
     }
 }
+
+
 
 // Configuração do pipeline HTTP
 if (!app.Environment.IsDevelopment())
